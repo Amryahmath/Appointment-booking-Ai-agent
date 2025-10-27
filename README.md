@@ -1,4 +1,4 @@
-# Smart GS Office — How to set up and run (n8n)
+#n8n set up
 
 This file contains only concise setup and run instructions for the n8n workflow exported as `Appointment_booking_final.json`.
 
