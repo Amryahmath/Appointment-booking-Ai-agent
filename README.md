@@ -1,4 +1,4 @@
-#n8n set up
+n8n set up
 -------------
 This file contains only concise setup and run instructions for the n8n workflow exported as `Appointment_booking_final.json`.
 
@@ -42,4 +42,4 @@ Troubleshooting
 - If webhook requests don't reach n8n, verify network access, reverse proxy, and webhook URL.
 - If calendar operations fail, re-check the OAuth2 credential and calendar email.
 
-That's all — this README contains only the setup and run instructions for the n8n workflow.
+
