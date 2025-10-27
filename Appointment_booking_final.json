@@ -1,0 +1,204 @@
+{
+  "name": "Appointment booking final",
+  "nodes": [
+    {
+      "parameters": {
+        "public": true,
+        "mode": "webhook",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.chatTrigger",
+      "typeVersion": 1.1,
+      "position": [
+        -380,
+        -100
+      ],
+      "id": "c50c310d-96c9-4b7d-90ea-9ad454b807ad",
+      "name": "When chat message received",
+      "webhookId": "af62e1c6-e478-4c37-9809-15a27821f557"
+    },
+    {
+      "parameters": {
+        "options": {
+          "systemMessage": "=You are a helpful, intelligent website chatbot for the Smart GS Office Digital System.  \nThe current date is {{ $now.format('yyyy-MM-dd') }}. You are in the Sri Lanka (IST) timezone.  \nYou’re a friendly male assistant named Nathan.  \n\nExtract the booking date and time from the user's input.  \nReturn only in JSON, like this: {\"date\": \"YYYY-MM-DD\", \"time\": \"HH:mm\"}.  \nUse the Asia/Colombo timezone (UTC+5:30).  \n\n---\n\n###  Context about the system:\nSmart GS Office automates citizen services like certificates, letters, and registrations.  \nCitizens can check GS availability online before visiting.  \nIt improves efficiency, transparency, and digital record-keeping.  \nDesigned for Grama Sevaka Offices to serve the public faster and smarter.  \n\n---\n\n###  As a chatbot, your responsibilities are:\n- Answer questions about the system (features, benefits, how it works).  \n- Guide citizens on how to request services or check availability.  \n- Help staff with login or usage instructions.  \n- Assist citizens with booking appointments.  \n\n---\n\n###  Appointment Booking Rules:\nIf a citizen wants to book a meeting:\n1. Ask for their **name** (e.g., “May I know your full name?”).  \n2. Ask for their **mobile number** (10 digits, starting with 0).  \n3. Request their **preferred date and time** for the appointment.  \n4. Confirm all details clearly before booking:  \n   “So, just to confirm — your name is [Name], mobile number is [Mobile], and you’d like an appointment on [Date] at [Time], right?”  \n5. Once confirmed, reply:  \n   “Perfect! Your appointment has been booked. See you on [Date] at [Time], [Name]! ”  \n\nIf the user doesn’t provide a date, offer suggestions within the next two days.  \nAlways keep the same date and time the user gives — don’t change it.  \n\n---\n\n###  Tone & Style:\n- Keep responses short, friendly, and chatty (like an SMS).  \n- Use natural fillers like “Hmm…”, “Okay cool!”, “Alright then…”  \n- Stay on-topic (Smart GS Office services).  \n- If someone goes off-topic, gently guide them back.  \n- End every conversation politely and positively.  \n\nExample:\n“Okay cool! May I know your name first?”  \n“Got it, thanks [Name]! Can I have your mobile number (10 digits)?”  \n“Nice! What date and time do you want the appointment?”  \n“Perfect! Your appointment is set for [Date] at [Time]. See you then!”\n"
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 2,
+      "position": [
+        -160,
+        -100
+      ],
+      "id": "737b38b7-42f3-47a4-bcdd-d4da3c340a64",
+      "name": "AI Agent"
+    },
+    {
+      "parameters": {
+        "modelName": "models/gemini-2.5-flash",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatGoogleGemini",
+      "typeVersion": 1,
+      "position": [
+        -300,
+        120
+      ],
+      "id": "d804e326-116c-413b-89dc-f8fd79c2fe26",
+      "name": "Google Gemini Chat Model",
+      "credentials": {
+        "googlePalmApi": {
+          "id": "1VPyLwPaT1fJGAYy",
+          "name": "Google Gemini(PaLM) Api account 2"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "contextWindowLength": 10
+      },
+      "type": "@n8n/n8n-nodes-langchain.memoryBufferWindow",
+      "typeVersion": 1.3,
+      "position": [
+        -140,
+        120
+      ],
+      "id": "49d393ae-7829-4e08-956e-abcf615defdd",
+      "name": "Simple Memory"
+    },
+    {
+      "parameters": {
+        "operation": "getAll",
+        "calendar": {
+          "__rl": true,
+          "value": "amyrsdfasfswd@gmail.com",
+          "mode": "list",
+          "cachedResultName": "amyrsdfasfswd@gmail.com"
+        },
+        "limit": 10,
+        "timeMin": "={{ $fromAI(\"afterDate\") }}",
+        "timeMax": "={{ $fromAI(\"beforeDate\") }}",
+        "options": {
+          "timeZone": {
+            "__rl": true,
+            "value": "Asia/Colombo",
+            "mode": "list",
+            "cachedResultName": "Asia/Colombo"
+          }
+        }
+      },
+      "type": "n8n-nodes-base.googleCalendarTool",
+      "typeVersion": 1.3,
+      "position": [
+        20,
+        120
+      ],
+      "id": "a3831cfe-88c6-4c64-b1d5-7b4407fb643d",
+      "name": "Google Calendar",
+      "credentials": {
+        "googleCalendarOAuth2Api": {
+          "id": "dBvyEUK6U2S8iMDj",
+          "name": "Google Calendar account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "calendar": {
+          "__rl": true,
+          "value": "amyrsdfasfswd@gmail.com",
+          "mode": "list",
+          "cachedResultName": "amyrsdfasfswd@gmail.com"
+        },
+        "start": "={{ $fromAI(\"startDate\") }}",
+        "end": "={{ $fromAI(\"endDate\") }}",
+        "additionalFields": {
+          "attendees": [],
+          "summary": "={{ $fromAI(\"meetingSummary\") }}"
+        }
+      },
+      "type": "n8n-nodes-base.googleCalendarTool",
+      "typeVersion": 1.3,
+      "position": [
+        240,
+        100
+      ],
+      "id": "a3bdeb92-af41-4e56-b485-a5fce5606df3",
+      "name": "Google Calendar1",
+      "credentials": {
+        "googleCalendarOAuth2Api": {
+          "id": "dBvyEUK6U2S8iMDj",
+          "name": "Google Calendar account"
+        }
+      }
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "When chat message received": {
+      "main": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Google Gemini Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Simple Memory": {
+      "ai_memory": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_memory",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Google Calendar": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Google Calendar1": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "b8a139ab-213f-436d-b9f9-74bebbeef192",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "57c90202ea11bc90f7f7b5861449cb5babaa9d84c91d630923831057d6a77f62"
+  },
+  "id": "7IIqrjK5gEEMTy5L",
+  "tags": []
+}
